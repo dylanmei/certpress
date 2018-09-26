@@ -18,13 +18,14 @@ type Spec struct {
 	Key                  string
 	Certificate          string
 	CertificateAuthority string
+	Secret               string
 }
 
 func main() {
 	specs := readSpecs()
 
 	for _, spec := range specs {
-		bytes, err := createCertificate(spec.Key, spec.Certificate, spec.CertificateAuthority, "certpress")
+		bytes, err := createCertificate(spec.Key, spec.Certificate, spec.CertificateAuthority, spec.Secret)
 		if err != nil {
 			fmt.Printf("Failed to create '%s' PKCS12 certificate: %v\n", spec.Name, err)
 			os.Exit(1)
@@ -66,7 +67,7 @@ func createCertificate(certificateURL, keyURL, caCertificateURL, secret string) 
 
 	fmt.Printf("Fetched %d bytes for CA Certificate\n", len(caCertificateBytes))
 
-	return encodeBytes(certificateBytes, keyBytes, caCertificateBytes, "certpress")
+	return encodeBytes(certificateBytes, keyBytes, caCertificateBytes, secret)
 }
 
 func encodeBytes(certificateBytes, keyBytes, caCertificateBytes []byte, secret string) ([]byte, error) {
@@ -138,7 +139,11 @@ func readSpecs() []Spec {
 		var spec *Spec
 		spec = specs[name]
 		if spec == nil {
-			spec = &Spec{Name: name}
+			spec = &Spec{
+				Name:   name,
+				Secret: "certpress",
+			}
+
 			specs[name] = spec
 		}
 
@@ -150,6 +155,9 @@ func readSpecs() []Spec {
 		}
 		if prop == "certificate-authority" {
 			spec.CertificateAuthority = value
+		}
+		if prop == "secret" {
+			spec.Secret = value
 		}
 	}
 
