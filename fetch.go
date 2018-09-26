@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -18,11 +20,10 @@ func fetch(fileURL string) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	var fetcher Fetcher
+	var fetcher FileFetcher
 
 	if location.Scheme == "s3" {
-		aws := session.Must(session.NewSession())
-		fetcher = &BucketObjectFetcher{aws}
+		fetcher = &BucketObjectFetcher{awsSession()}
 	} else {
 		fetcher = &LocalFileFetcher{}
 	}
@@ -30,7 +31,25 @@ func fetch(fileURL string) ([]byte, error) {
 	return fetcher.Fetch(location)
 }
 
-type Fetcher interface {
+func awsSession() *session.Session {
+	region := os.Getenv("AWS_REGION")
+	if region == "" {
+		sess := session.Must(session.NewSession())
+		ec2m := ec2metadata.New(sess)
+		if ec2m.Available() {
+			region, _ = ec2m.Region()
+		}
+	}
+	if region == "" {
+		return session.Must(session.NewSession())
+	}
+
+	return session.Must(session.NewSession(&aws.Config{
+		Region: aws.String(region),
+	}))
+}
+
+type FileFetcher interface {
 	Fetch(location *url.URL) ([]byte, error)
 }
 
