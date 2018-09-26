@@ -32,7 +32,7 @@ func main() {
 	}
 
 	for _, spec := range specs {
-		bytes, err := createCertificate(spec.Key, spec.Certificate, spec.CertificateAuthority, spec.Secret)
+		bytes, err := createCertificate(spec.Certificate, spec.Key, spec.CertificateAuthority, spec.Secret)
 		if err != nil {
 			fmt.Printf("Failed to create '%s' PKCS12 certificate: %v\n", spec.Name, err)
 			os.Exit(1)
@@ -48,31 +48,26 @@ func main() {
 }
 
 func createCertificate(certificateURL, keyURL, caCertificateURL, secret string) ([]byte, error) {
-	var err error
-	var keyBytes []byte
-	var certificateBytes []byte
-	var caCertificateBytes []byte
-
-	keyBytes, err = fetch(keyURL)
+	keyBytes, err := fetch(keyURL)
 	if err != nil {
 		return nil, fmt.Errorf("ERROR downloading Key %s: %v", keyURL, err)
 	}
 
-	fmt.Printf("Fetched %d bytes for Key\n", len(keyBytes))
+	fmt.Printf("Fetched %d bytes from key '%s'\n", len(keyBytes), keyURL)
 
-	certificateBytes, err = fetch(certificateURL)
+	certificateBytes, err := fetch(certificateURL)
 	if err != nil {
 		return nil, fmt.Errorf("ERROR downloading Certificate %s: %v", certificateURL, err)
 	}
 
-	fmt.Printf("Fetched %d bytes for Certificate\n", len(certificateBytes))
+	fmt.Printf("Fetched %d bytes from certificate '%s'\n", len(certificateBytes), certificateURL)
 
-	caCertificateBytes, err = fetch(caCertificateURL)
+	caCertificateBytes, err := fetch(caCertificateURL)
 	if err != nil {
 		return nil, fmt.Errorf("ERROR downloading CA Certificate %s: %v", caCertificateURL, err)
 	}
 
-	fmt.Printf("Fetched %d bytes for CA Certificate\n", len(caCertificateBytes))
+	fmt.Printf("Fetched %d bytes from CA certificate '%s'\n", len(caCertificateBytes), caCertificateURL)
 
 	return encodeBytes(certificateBytes, keyBytes, caCertificateBytes, secret)
 }
