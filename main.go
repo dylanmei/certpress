@@ -13,7 +13,7 @@ import (
 	"software.sslmate.com/src/go-pkcs12"
 )
 
-type Spec struct {
+type CertSpec struct {
 	Name                 string
 	Key                  string
 	Certificate          string
@@ -22,7 +22,14 @@ type Spec struct {
 }
 
 func main() {
-	specs := readSpecs()
+	if version() {
+		os.Exit(0)
+	}
+
+	specs := parseSpecs(os.Args[1:])
+	if len(specs) == 0 {
+		fmt.Printf("Nothing to do")
+	}
 
 	for _, spec := range specs {
 		bytes, err := createCertificate(spec.Key, spec.Certificate, spec.CertificateAuthority, spec.Secret)
@@ -117,9 +124,9 @@ func encodeBytes(certificateBytes, keyBytes, caCertificateBytes []byte, secret s
 	return pkcs12.Encode(rand.Reader, privateKey, certificate, []*x509.Certificate{caCertificate}, secret)
 }
 
-func readSpecs() []Spec {
-	specs := make(map[string]*Spec)
-	for _, arg := range os.Args[1:] {
+func parseSpecs(args []string) []CertSpec {
+	specs := make(map[string]*CertSpec)
+	for _, arg := range args {
 		fvp := strings.Split(arg, "=")
 		if len(fvp) != 2 {
 			continue
@@ -136,10 +143,10 @@ func readSpecs() []Spec {
 		name := strings.TrimLeft(npp[0], "-")
 		prop := strings.TrimLeft(npp[1], "-")
 
-		var spec *Spec
+		var spec *CertSpec
 		spec = specs[name]
 		if spec == nil {
-			spec = &Spec{
+			spec = &CertSpec{
 				Name:   name,
 				Secret: "certpress",
 			}
@@ -161,10 +168,21 @@ func readSpecs() []Spec {
 		}
 	}
 
-	list := []Spec{}
+	list := []CertSpec{}
 	for _, spec := range specs {
 		list = append(list, *spec)
 	}
 
 	return list
+}
+
+func version() bool {
+	for _, arg := range os.Args[1:] {
+		if arg == "-version" {
+			PrintVersion(os.Stdout)
+			return true
+		}
+	}
+
+	return false
 }
