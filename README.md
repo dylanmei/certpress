@@ -1,4 +1,4 @@
-## certpress [![Build Status](https://travis-ci.org/dylanmei/certpress.svg?branch=master)](https://travis-ci.org/dylanmei/certpress)
+# certpress [![Build Status](https://travis-ci.org/dylanmei/certpress.svg?branch=master)](https://travis-ci.org/dylanmei/certpress)
 
 Because we can't just have PEM-encoded things.
 
