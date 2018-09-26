@@ -18,7 +18,7 @@ type CertSpec struct {
 	Key                  string
 	Certificate          string
 	CertificateAuthority string
-	Secret               string
+	Password             string
 }
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	}
 
 	for _, spec := range specs {
-		bytes, err := createCertificate(spec.Certificate, spec.Key, spec.CertificateAuthority, spec.Secret)
+		bytes, err := createCertificate(spec.Certificate, spec.Key, spec.CertificateAuthority, spec.Password)
 		if err != nil {
 			fmt.Printf("Failed to create '%s' PKCS12 certificate: %v\n", spec.Name, err)
 			os.Exit(1)
@@ -47,7 +47,7 @@ func main() {
 	}
 }
 
-func createCertificate(certificateURL, keyURL, caCertificateURL, secret string) ([]byte, error) {
+func createCertificate(certificateURL, keyURL, caCertificateURL, password string) ([]byte, error) {
 	keyBytes, err := fetch(keyURL)
 	if err != nil {
 		return nil, fmt.Errorf("ERROR downloading Key %s: %v", keyURL, err)
@@ -69,10 +69,10 @@ func createCertificate(certificateURL, keyURL, caCertificateURL, secret string) 
 
 	fmt.Printf("Fetched %d bytes from CA certificate '%s'\n", len(caCertificateBytes), caCertificateURL)
 
-	return encodeBytes(certificateBytes, keyBytes, caCertificateBytes, secret)
+	return encodeBytes(certificateBytes, keyBytes, caCertificateBytes, password)
 }
 
-func encodeBytes(certificateBytes, keyBytes, caCertificateBytes []byte, secret string) ([]byte, error) {
+func encodeBytes(certificateBytes, keyBytes, caCertificateBytes []byte, password string) ([]byte, error) {
 	var err error
 
 	keyBlock, _ := pem.Decode(keyBytes)
@@ -116,7 +116,7 @@ func encodeBytes(certificateBytes, keyBytes, caCertificateBytes []byte, secret s
 		return nil, fmt.Errorf("Could not parse ca certificate: %v", err)
 	}
 
-	return pkcs12.Encode(rand.Reader, privateKey, certificate, []*x509.Certificate{caCertificate}, secret)
+	return pkcs12.Encode(rand.Reader, privateKey, certificate, []*x509.Certificate{caCertificate}, password)
 }
 
 func parseSpecs(args []string) []CertSpec {
@@ -142,8 +142,8 @@ func parseSpecs(args []string) []CertSpec {
 		spec = specs[name]
 		if spec == nil {
 			spec = &CertSpec{
-				Name:   name,
-				Secret: "certpress",
+				Name:     name,
+				Password: "certpress",
 			}
 
 			specs[name] = spec
@@ -158,8 +158,8 @@ func parseSpecs(args []string) []CertSpec {
 		if prop == "certificate-authority" {
 			spec.CertificateAuthority = value
 		}
-		if prop == "secret" {
-			spec.Secret = value
+		if prop == "password" {
+			spec.Password = value
 		}
 	}
 
