@@ -13,3 +13,4 @@ deploy:
   file: bin/certpress
   on:
     repo: dylanmei/certpress
+    tags: true
