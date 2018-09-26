@@ -130,7 +130,7 @@ func readSpecs() []Spec {
 
 		npp := strings.Split(field, ".")
 		if len(npp) != 2 {
-			npp = []string{"default", npp[0]}
+			npp = []string{"certpress", npp[0]}
 		}
 
 		name := strings.TrimLeft(npp[0], "-")
