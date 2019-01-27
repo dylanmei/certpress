@@ -1,0 +1,8 @@
+basicConstraints = CA:FALSE
+subjectAltName = @alt_names
+extendedKeyUsage = serverAuth
+subjectKeyIdentifier = hash
+
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = server

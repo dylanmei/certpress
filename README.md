@@ -11,13 +11,14 @@ Why would you use this? Use [jimmidyson/pemtokeystore](https://github.com/jimmid
 Fetch PEM certificates and convert to Java KeyStore files.
 
 ```
-certpress \
-  --server.key=cat-key.pem \
-  --server.certificate=cat.pem \
-  --server.certificate-authority=ca.pem \
-  --server.password=biscuit \
-  --replication.key=s3://dog-bucket/dog-key.pem \
-  --replication.certificate=s3://dog-bucket/dog.pem \
-  --replication.certificate-authority=s3://dog-bucket/ca.pem \
-  --replication.password=caramel
+make build example
+bin/certpress \
+  --server.key=example/server-key.pem \
+  --server.certificate=example/server.pem \
+  --server.certificate-authority=example/ca.pem \
+  --server.password=changeme \
+  --truststore.certificate-authority=example/ca.pem
+
+docker-compose up
+kafkacat -b localhost:9093 -X security.protocol=SSL -X ssl.ca.location=example/ca.pem -L
 ```

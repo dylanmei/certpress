@@ -8,3 +8,8 @@ build: clean
 
 clean:
 	rm -rf bin/
+
+example:
+	@example/certificates.sh
+
+.PHONY: example

@@ -1,0 +1,6 @@
+*.pem
+*.jks
+*.pkcs12
+*.csr
+*.srl*
+*.index*
