@@ -20,12 +20,12 @@ func main() {
 	for _, opt := range opts {
 		ks, err := certpress.NewKeyStore(opt.Files, opt.Password)
 		if err != nil {
-			fmt.Printf("Failed to create KeyStore '%s': %v\n", opt.Name, err)
+			fmt.Fprintf(os.Stderr, "Failed to create KeyStore '%s': %v\n", opt.Name, err)
 			os.Exit(1)
 		}
 
 		if err = writeKeyStore(ks, opt.Name+".jks"); err != nil {
-			fmt.Printf("Failed to save '%s' KeyStore: %v\n", opt.Name, err)
+			fmt.Fprintf(os.Stderr, "Failed to save '%s' KeyStore: %v\n", opt.Name, err)
 			os.Exit(1)
 		}
 
