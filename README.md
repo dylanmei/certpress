@@ -6,9 +6,16 @@ Because we can't just have PEM-encoded things.
 
 Why would you use this? Use [jimmidyson/pemtokeystore](https://github.com/jimmidyson/pemtokeystore) instead.
 
+### Sources
+
+Fetch certificates from these source system types:
+- local file-system
+- AWS S3, for example: `server.certificate=s3://my-bucket/server.crt`
+- AWS Secrets Manager, for example: `server.certificate=awssm://my-secret/server.crt`
+
 ### Example
 
-Fetch PEM certificates and convert to Java KeyStore files.
+Fetch PEM certificates and convert to Java KeyStore files for your local Kafka cluster.
 
 ```
 make build example
