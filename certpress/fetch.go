@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
-	"regexp"
 	"strings"
 
 	"encoding/json"
@@ -107,38 +106,12 @@ func fetchBytesFromSecretsManager(config client.ConfigProvider, secretName, secr
 				return nil, fmt.Errorf("Key %s is not a component of secret %s", secretKey, secretName)
 			}
 
-			// AWS Secrets Manager may encode newlines characters
-			// as spaces when the secret is a dictionary.
-			certificate := pemFixupWhitespace(secretsMap[secretKey])
+			certificate := secretsMap[secretKey]
 			secretBytes = []byte(certificate)
 		}
 
 		return secretBytes, nil
-	} else {
-		return nil, fmt.Errorf("Decoding binary secrets is not implemented!")
-	}
-}
-
-func pemFixupWhitespace(text string) string {
-	if len(text) == 0 {
-		return text
 	}
 
-	layoutRegex := regexp.MustCompile(`-{5}[\s\w]+-{5}`)
-	layoutArray := layoutRegex.Split(text, 3)
-	labelsArray := layoutRegex.FindAllString(text, 2)
-
-	if len(layoutArray) != 3 {
-		//panic("Certificate layout does not contain enough sections")
-		return text
-	}
-
-	if len(labelsArray) != 2 {
-		//panic("Certificate layout does not contain enough labels")
-		return text
-	}
-
-	encodedData := strings.ReplaceAll(strings.Trim(layoutArray[1], " \n"), " ", "\n")
-	certificate := fmt.Sprintf("%s\n%s\n%s", labelsArray[0], encodedData, labelsArray[1])
-	return certificate
+	return nil, fmt.Errorf("Decoding binary secrets is not implemented!")
 }
